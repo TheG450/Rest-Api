@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('blobbyhub', 'root', 'root', {
-    host: 'localhost',
+const sequelize = new Sequelize('s1483_FeariseHUBdb', 'u1483_O5Or2kPlFV', '9OxZ4.+5evC4t@EPIhSv8wPV', { // root, root
+    host: '157.90.211.250', //localhost
     dialect: 'mysql',
     define: {
         timestamps: false
