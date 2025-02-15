@@ -162,7 +162,6 @@ async function redeemToken(req, res) {
     }
 }
 
-
 async function getKey(req, res) {
     const { discordId } = req.query;
     if (!discordId) {
@@ -284,7 +283,7 @@ async function resetHwidDisCord(req, res) {
             await user.save();
         }
 
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, totalToken: user.token });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
