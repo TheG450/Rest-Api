@@ -1,5 +1,4 @@
 const db = require('../config/db');
-const UUIDV4 = require('crypto')
 const { Users, GameMap, UserGameMaps } = db;
 db.sequelize.sync();
 
@@ -222,5 +221,38 @@ async function resetHwid(req, res) {
     }
 }
 
+async function deleteUser(req, res) {
+    const { discordId } = req.body;
+    if (!discordId) {
+        return res.status(400).json({ error: 'Missing required field: discordId' });
+    }
+    try {
+        // ค้นหา user จาก discordId
+        const user = await Users.findOne({ where: { discordId: discordId.toString().substring(0, 255) } });
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // ดึงรายการเกมทั้งหมดของผู้ใช้จาก user_game_maps
+        const userGameMaps = await UserGameMaps.findAll({ where: { uid: user.uid } });
+        const gameMapIds = userGameMaps.map(entry => entry.gameMapId);
+        
+        // ลบความสัมพันธ์ระหว่างผู้ใช้และเกมใน user_game_maps
+        await UserGameMaps.destroy({ where: { uid: user.uid } });
+        
+        // ลบเกมใน game_maps ที่เชื่อมโยงกับ user ถ้ามี
+        await GameMap.destroy({ where: { id: gameMapIds } });
+        
+        // ลบผู้ใช้จากตาราง users
+        await user.destroy();
+        
+        res.status(200).json({ message: 'User and related game maps deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
-module.exports = { Ready, getUsers, redeemKey, getKey, getUserMap, getAccess, resetHwid };
+
+
+module.exports = { Ready, getUsers, redeemKey, getKey, getUserMap, getAccess, resetHwid, deleteUser };
