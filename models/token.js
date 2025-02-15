@@ -1,14 +1,13 @@
 module.exports = (sequelize, Sequelize) => {
     const GameMap = sequelize.define(
-        'GameMap',
+        'token',
         {
             id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
             key: { type: Sequelize.STRING(255), allowNull: false, unique: true },
-            gameName: { type: Sequelize.STRING(255), allowNull: false },
-            isactive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
+            count: { type: Sequelize.INTEGER, allowNull: false },
         },
         {
-            tableName: 'game_maps',
+            tableName: 'token',
             timestamps: false
         }
     );

@@ -16,9 +16,11 @@ db.sequelize = sequelize;
 
 db.Users = require('../models/user')(sequelize, Sequelize);
 db.GameMap = require('../models/GameMap')(sequelize, Sequelize);
+db.Token = require('../models/token')(sequelize, Sequelize);
 
 console.log('Users Model:', db.Users);
 console.log('GameMap Model:', db.GameMap);
+console.log('token Model:', db.Token);
 
 db.UserGameMaps = sequelize.define(
   'UserGameMaps', 

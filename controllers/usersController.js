@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { Users, GameMap, UserGameMaps } = db;
+const { Users, GameMap, UserGameMaps, Token } = db;
 db.sequelize.sync();
 
 // Function to generate unique userKey
@@ -120,6 +120,44 @@ async function redeemKey(req, res) {
     }
 }
 
+async function redeemToken(req, res) {
+    const { discordId, key } = req.body;
+    
+    if (!discordId || !key) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        // 🔥 ค้นหา token จาก key
+        const tokenData = await Token.findOne({ where: { key } });
+        if (!tokenData) {
+            return res.status(400).json({ error: 'Invalid key' });
+        }
+
+        // 🔥 ค้นหาผู้ใช้จาก discordId
+        const user = await Users.findOne({ where: { discordId: discordId.toString() } });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // 🔥 อัปเดต token ของ user โดยเพิ่ม token.count เข้าไป
+        user.token += tokenData.count;
+        await user.save();
+
+        // 🔥 ลบ key ออกจากฐานข้อมูลหลังจาก redeem สำเร็จ
+        await tokenData.destroy();
+
+        return res.status(200).json({
+            success: true,
+            message: `✅ Token ของคุณถูกเพิ่มเรียบร้อยแล้ว! 🎟️`,
+            totalToken: user.token
+        });
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
 async function getKey(req, res) {
     const { discordId } = req.query;
     if (!discordId) {
@@ -210,12 +248,38 @@ async function resetHwid(req, res) {
         }
 
         // ถ้า HWID เป็น "N/A" หรือไม่ตรงกับ myHwid ให้เปลี่ยนเป็น myHwid
-        if (key.hwid === "N/A" || key.hwid !== myHwid) {
+        if (key.hwid === "N/A") {
             key.hwid = myHwid;
             await key.save(); // บันทึกการเปลี่ยนแปลง
         }
 
         return res.status(200).json({ success: true, hwid: key.hwid });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+async function resetHwidDisCord(req, res) {
+    const { discordId } = req.body;
+
+    if (!discordId) {
+        return res.status(400).json({ error: 'Missing required field: discordId' });
+    }
+
+    try {
+        const user = await Users.findOne({ where: { discordId: discordId.toString() } });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.token >= 1) {
+            user.token -= 1
+            user.hwid = "N/A"
+            await user.save();
+        }
+
+        return res.status(200).json({ success: true });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -255,4 +319,4 @@ async function deleteUser(req, res) {
 
 
 
-module.exports = { Ready, getUsers, redeemKey, getKey, getUserMap, getAccess, resetHwid, deleteUser };
+module.exports = { Ready, getUsers, redeemKey, getKey, getUserMap, getAccess, resetHwid, deleteUser, resetHwidDisCord, redeemToken };

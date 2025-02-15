@@ -3,7 +3,7 @@ module.exports = (sequelize, Sequelize) => {
         'Users',
         {
             uid: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-            userName: { type: Sequelize.STRING(50), allowNull: false },
+            userName: { type: Sequelize.STRING(255), allowNull: false },
             isBanned: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
             hwid: { type: Sequelize.STRING(255), allowNull: false },
             token: { type: Sequelize.STRING(255), allowNull: false },
