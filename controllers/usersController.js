@@ -121,7 +121,7 @@ async function redeemKey(req, res) {
 }
 
 async function getKey(req, res) {
-    const { discordId } = req.body;
+    const { discordId } = req.query;
     if (!discordId) {
         return res.status(400).send({ error: 'Missing required field: discordId' });
     }
@@ -139,7 +139,7 @@ async function getKey(req, res) {
 }
 
 async function getUserMap(req, res) {
-    const { discordId } = req.body;
+    const { discordId } = req.query;
     if (!discordId) {
         return res.status(400).send({ error: 'Missing required field: discordId' });
     }
