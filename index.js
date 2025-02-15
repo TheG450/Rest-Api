@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(bodyparser.json())
 app.use(cors())
 
-const port = 4000; //8000
+const port = 3000; //8000
 
 app.use("/api", userRoute);
 
