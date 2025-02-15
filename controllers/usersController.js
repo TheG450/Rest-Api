@@ -140,8 +140,12 @@ async function redeemToken(req, res) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // 🔥 อัปเดต token ของ user โดยเพิ่ม token.count เข้าไป
-        user.token += tokenData.count;
+        // 🔥 ตรวจสอบให้แน่ใจว่า token และ count เป็นตัวเลข
+        const currentToken = Number(user.token) || 0;
+        const tokenToAdd = Number(tokenData.count) || 0;
+
+        // 🔥 อัปเดต token ของ user โดยบวก token.count เข้าไป
+        user.token = currentToken + tokenToAdd;
         await user.save();
 
         // 🔥 ลบ key ออกจากฐานข้อมูลหลังจาก redeem สำเร็จ
@@ -157,6 +161,7 @@ async function redeemToken(req, res) {
         return res.status(500).json({ error: error.message });
     }
 }
+
 
 async function getKey(req, res) {
     const { discordId } = req.query;
